@@ -7,7 +7,8 @@ public class birds : MonoBehaviour
 {
     Vector2 startPosition;
     public float force;  // Rigidbody'nin uygulayacaðý kuvvet
-    Rigidbody2D rb2d;
+
+    [SerializeField] float maxDragValue = 3; // Maksimum sürükleme mesafesini yazdýk. SerializeField deðer baþka scriptlerden eriþilemez fakat Inspector panelinden dzenlenebilir
 
     /*Rigidbody2D rb2d;                  GetComponent<Rigidbody2D>()            Componentleri karþýlarýndaki þekilde de tanýmlayabiliriz.
     SpriteRenderer sprite;               GetComponent<SpriteRenderer>()*/
@@ -37,8 +38,22 @@ public class birds : MonoBehaviour
 
     void OnMouseDrag()
     {  // Mouse týklanarak seçilince faremizi takip etmesini saðladýk.
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
-        transform.position = new Vector2(mousePosition.x, mousePosition.y);
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 desiredPositon = mousePosition;
+
+        float distance = Vector2.Distance(startPosition, desiredPositon);// baþlangýç pozisyonu ve mouse konumu arasýndaki mesafeyi belirledik.
+        if(distance > maxDragValue) // sürükleme mesafesinden fazla ise olacaklar.
+        {
+            Vector2 direction = desiredPositon - startPosition;
+            direction.Normalize();
+            desiredPositon = startPosition + (direction * maxDragValue);
+        }
+        if (desiredPositon.x > startPosition.x)
+        {
+            desiredPositon.x = startPosition.x;
+        }
+        GetComponent<Rigidbody2D>().position = desiredPositon;
+
     }
 
     void Update()
@@ -46,8 +61,14 @@ public class birds : MonoBehaviour
         
     }
 
-    void OnCollisionEnter2D(Collision2D collision)  // Çarpýnca gerçekleþecek olanlarý yazdým
+    void OnCollisionEnter2D(Collision2D collision)  // Çarpýnca gerçekleþecek olaylarý yazdým.  
     {
+        StartCoroutine(ResetWait());
+    }
+
+    IEnumerator ResetWait()
+    {
+        yield return new WaitForSeconds(3); // 3 saniye bekledikten sonra tekrar eski konumuna dönderdim.
         GetComponent<Rigidbody2D>().position = startPosition;   // Çarptýktan sonra baþlangýç konumuna getirdim. Inspector'den Freeze Rotation ile dönmeyi durdurdum.
         GetComponent<Rigidbody2D>().isKinematic = true;         // En baþa dönünce düþmemesi için yazdým.
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;    // Tekrar tekrar baþa gelip ayný hareketleri yapmamasý için yazdým. Hýzýný sýfýrladým. 
