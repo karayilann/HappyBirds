@@ -11258,7 +11258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00d7f45f5b298c24cb1e235789710a3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextLevelName: Level1
+  nextLevelName: Menu
 --- !u!4 &1339522949
 Transform:
   m_ObjectHideFlags: 0
